@@ -31,13 +31,13 @@ public class JwtService {
         return Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
     }
     @Transactional
-     public String generateToken(User user){
+     public String generateAccessToken(User user){
          String token =  Jwts.builder()
                  .subject(user.getId().toString())
                  .claim("email",user.getEmail())
                  .claim("roles", Set.of("ADMIN","USER"))
                  .issuedAt(new Date())
-                 .expiration(new Date(System.currentTimeMillis() + 1000*60))
+                 .expiration(new Date(System.currentTimeMillis() + 1000*60*10))
                  .signWith(getSecretKey())
                  .compact();
 
@@ -53,6 +53,28 @@ public class JwtService {
          return token;
 
      }
+
+    @Transactional
+    public String generateRefreshToken(User user){
+        String token =  Jwts.builder()
+                .subject(user.getId().toString())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 1000L *60*60*24*30*6))
+                .signWith(getSecretKey())
+                .compact();
+
+        // Delete old session if it exists
+        sessionRepository.findByUser(user).ifPresent(sessionRepository::delete);
+
+
+        Session session = new Session();
+        session.setToken(token);
+        session.setUser(user);
+        session.setCreatedAt(LocalDateTime.now());
+        sessionRepository.save(session);
+        return token;
+
+    }
 
      public Long getUserIdFromToken(String token){  // this throws the jwt exception like in case the token has expired
          Claims claims = Jwts.parser()
