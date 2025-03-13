@@ -2,6 +2,7 @@ package com.codingShuttle.SecurityApp.SecurityApplication.config;
 
 import com.codingShuttle.SecurityApp.SecurityApplication.filters.JwtAuthFilter;
 import com.codingShuttle.SecurityApp.SecurityApplication.filters.RequestLoggingFilter;
+import com.codingShuttle.SecurityApp.SecurityApplication.handlers.OAuth2SuccessHandler;
 import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -24,21 +25,25 @@ public class WebSecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final RequestLoggingFilter requestLoggingFilter;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/posts", "/auth/**").permitAll()
+                        .requestMatchers("/posts", "/auth/**", "/home.html").permitAll()
                         .requestMatchers("/posts/**").authenticated()
                         .anyRequest().authenticated())
                 .csrf(csrfConfig -> csrfConfig.disable())
                 .sessionManagement(sessionConfig -> sessionConfig
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(requestLoggingFilter, JwtAuthFilter.class);
-
+                .addFilterBefore(requestLoggingFilter, JwtAuthFilter.class)
+                .oauth2Login(oauth2Config -> oauth2Config
+                        .failureUrl("/login?error=true")
+                        .successHandler(oAuth2SuccessHandler)
+                );
               //  .formLogin(Customizer.withDefaults());
 
         return httpSecurity.build();
@@ -62,10 +67,4 @@ public class WebSecurityConfig {
 //
 //        return new InMemoryUserDetailsManager(normalUser, adminUser);
 //    }
-
-
-
-
-
-
 }

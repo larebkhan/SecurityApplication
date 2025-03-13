@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Security App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        #user-info {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<h1>Welcome to Security Application</h1>
+<p>This is your home page after successful login.</p>
+
+<div id="user-info">
+    <p><strong>Email:</strong> <span id="user-email">Fetching...</span></p>
+</div>
+
+<button onclick="logout()">Logout</button>
+
+<script>
+    // Fetch user info from backend
+    async function fetchUserInfo() {
+        const token = new URLSearchParams(window.location.search).get("token");
+
+        if (!token) {
+            document.getElementById("user-email").innerText = "Not Authenticated";
+            return;
+        }
+
+        try {
+            const response = await fetch("http://localhost:8420/api/user", {
+                headers: { "Authorization": "Bearer " + token }
+            });
+            const data = await response.json();
+            document.getElementById("user-email").innerText = data.email;
+        } catch (error) {
+            document.getElementById("user-email").innerText = "Error fetching user info";
+        }
+    }
+
+    // Logout function
+    function logout() {
+        document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        window.location.href = "http://localhost:8420/auth/logout";
+    }
+
+    fetchUserInfo(); // Call function on page load
+</script>
+</body>
+</html>
