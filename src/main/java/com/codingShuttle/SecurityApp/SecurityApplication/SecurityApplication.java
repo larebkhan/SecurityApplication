@@ -15,7 +15,7 @@ public class SecurityApplication {
 		System.setProperty("GOOGLE_CLIENT_ID", dotenv.get("GOOGLE_CLIENT_ID"));
 		System.setProperty("GOOGLE_CLIENT_SECRET", dotenv.get("GOOGLE_CLIENT_SECRET"));
 	}
-
+//hello
 	public static void main(String[] args) {
 		SpringApplication.run(SecurityApplication.class, args);
 	}
