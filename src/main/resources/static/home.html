@@ -4,35 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home - Security App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
+            transition: background-color 0.3s, color 0.3s;
         }
-        #user-info {
-            margin-top: 20px;
-            font-size: 18px;
-        }
-        button {
-            padding: 10px 15px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 20px;
+        .dark-mode {
+            background-color: #1a202c;
+            color: #f7fafc;
         }
     </style>
 </head>
-<body>
-<h1>Welcome to Security Application</h1>
-<p>This is your home page after successful login.</p>
+<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 transition-all">
 
-<div id="user-info">
-    <p><strong>Email:</strong> <span id="user-email">Fetching...</span></p>
+<!-- Theme Toggle -->
+<button onclick="toggleDarkMode()" class="absolute top-5 right-5 p-2 rounded-full bg-gray-800 dark:bg-gray-100 text-white dark:text-gray-900 shadow-md">
+    🌙/☀️
+</button>
+
+<div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg text-center max-w-md">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Welcome to Security App</h1>
+    <p class="text-gray-600 dark:text-gray-300 mt-2">This is your secure dashboard.</p>
+
+    <div id="user-info" class="mt-4 p-4 rounded-lg bg-gray-100 dark:bg-gray-700 shadow-md">
+        <p class="text-lg font-semibold">Email: <span id="user-email" class="text-blue-500 dark:text-blue-300">Fetching...</span></p>
+    </div>
+
+    <div class="mt-6 flex gap-4 justify-center">
+        <button onclick="logout()" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-md transition-all">
+            Logout
+        </button>
+    </div>
 </div>
 
-<button onclick="logout()">Logout</button>
-
 <script>
+    // Dark Mode Toggle
+    function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+    }
+
     // Fetch user info from backend
     async function fetchUserInfo() {
         const token = new URLSearchParams(window.location.search).get("token");
