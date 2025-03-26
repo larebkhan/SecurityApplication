@@ -42,14 +42,14 @@ public class JwtService {
                  .compact();
 
         // Delete old session if it exists
-        sessionRepository.findByUser(user).ifPresent(sessionRepository::delete);
+        //sessionRepository.findByUser(user).ifPresent(sessionRepository::delete);
 
 
-        Session session = new Session();
-         session.setToken(token);
-         session.setUser(user);
-         session.setCreatedAt(LocalDateTime.now());
-         sessionRepository.save(session);
+//        Session session = new Session();
+//         session.setRefreshToken(token);
+//         session.setUser(user);
+//         session.setCreatedAt(LocalDateTime.now());
+//         sessionRepository.save(session);
          return token;
 
      }
@@ -64,14 +64,14 @@ public class JwtService {
                 .compact();
 
         // Delete old session if it exists
-        sessionRepository.findByUser(user).ifPresent(sessionRepository::delete);
+        //sessionRepository.findByUser(user).ifPresent(sessionRepository::delete);
 
 
-        Session session = new Session();
-        session.setToken(token);
-        session.setUser(user);
-        session.setCreatedAt(LocalDateTime.now());
-        sessionRepository.save(session);
+//        Session session = new Session();
+//        session.setRefreshToken(token);
+//        session.setUser(user);
+//        session.setCreatedAt(LocalDateTime.now());
+//        sessionRepository.save(session);
         return token;
 
     }
