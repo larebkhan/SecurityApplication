@@ -16,7 +16,7 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
-    private final SessionRepository sessionRepository;
+    private final SessionService sessionService;
     private final UserService userService;
 
     public LoginResponseDto login(LoginDto loginDto) {
@@ -27,16 +27,18 @@ public class AuthService {
 
         String accessToken =  jwtService.generateAccessToken(user);
         String refreshToken =  jwtService.generateRefreshToken(user);
+        sessionService.generateNeSession(user,refreshToken);
         return new LoginResponseDto(user.getId() ,accessToken, refreshToken);
 
     }
 
-    public void logout(User user) {
-        sessionRepository.deleteByUser(user);
-    }
+//    public void logout(User user) {
+//        sessionService.deleteByUser(user);
+//    }
 
     public LoginResponseDto refreshToken(String refreshToken) {
         Long userId = jwtService.getUserIdFromToken(refreshToken);
+        sessionService.validateSession(refreshToken);
         User user = userService.getUserById(userId);
         String accessToken = jwtService.generateAccessToken(user);
         return new LoginResponseDto(user.getId() ,accessToken, refreshToken);

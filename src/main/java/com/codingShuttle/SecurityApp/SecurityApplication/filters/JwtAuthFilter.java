@@ -2,7 +2,6 @@ package com.codingShuttle.SecurityApp.SecurityApplication.filters;
 
 import com.codingShuttle.SecurityApp.SecurityApplication.entities.Session;
 import com.codingShuttle.SecurityApp.SecurityApplication.entities.User;
-import com.codingShuttle.SecurityApp.SecurityApplication.exceptions.ResourceNotFoundException;
 import com.codingShuttle.SecurityApp.SecurityApplication.repositories.SessionRepository;
 import com.codingShuttle.SecurityApp.SecurityApplication.services.JwtService;
 import com.codingShuttle.SecurityApp.SecurityApplication.services.UserService;
@@ -21,7 +20,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Component               // we need to create a bean for jwtAuthFilter
@@ -50,7 +48,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             Long userID = jwtService.getUserIdFromToken(token);
             if (userID != null && SecurityContextHolder.getContext().getAuthentication() == null){
                 User user = userService.getUserById(userID);
-                Optional<Session> sessionOpt = sessionRepository.findByToken(token);
+                Optional<Session> sessionOpt = sessionRepository.findByRefreshToken(token);
 
                 if (sessionOpt.isEmpty()) {
                     throw new RuntimeException("Invalid or expired token");

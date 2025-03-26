@@ -48,21 +48,21 @@ public class AuthController {
         return ResponseEntity.ok(loginResponseDto);
     }
 
-    @PostMapping("/logout/")
-    public ResponseEntity<String> logout(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.badRequest().body("Missing or invalid Authorization header");
-        }
-
-        String token = authHeader.split("Bearer ")[1]; // Remove "Bearer " prefix
-        Long userId = jwtService.getUserIdFromToken(token);
-        User user = userService.getUserById(userId);
-
-        authService.logout(user);
-        return ResponseEntity.ok("User logged out successfully");
-    }
+//    @PostMapping("/logout/")
+//    public ResponseEntity<String> logout(HttpServletRequest request) {
+//        String authHeader = request.getHeader("Authorization");
+//
+//        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+//            return ResponseEntity.badRequest().body("Missing or invalid Authorization header");
+//        }
+//
+//        String token = authHeader.split("Bearer ")[1]; // Remove "Bearer " prefix
+//        Long userId = jwtService.getUserIdFromToken(token);
+//        User user = userService.getUserById(userId);
+//
+//        authService.logout(user);
+//        return ResponseEntity.ok("User logged out successfully");
+//    }
 
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponseDto> refresh(HttpServletRequest request){
