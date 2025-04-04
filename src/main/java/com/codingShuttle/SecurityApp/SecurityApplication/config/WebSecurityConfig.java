@@ -1,5 +1,6 @@
 package com.codingShuttle.SecurityApp.SecurityApplication.config;
 
+import com.codingShuttle.SecurityApp.SecurityApplication.entities.enums.Permissions;
 import com.codingShuttle.SecurityApp.SecurityApplication.filters.JwtAuthFilter;
 import com.codingShuttle.SecurityApp.SecurityApplication.filters.RequestLoggingFilter;
 import com.codingShuttle.SecurityApp.SecurityApplication.handlers.OAuth2SuccessHandler;
@@ -8,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import static com.codingShuttle.SecurityApp.SecurityApplication.entities.enums.Roles.ADMIN;
 import static com.codingShuttle.SecurityApp.SecurityApplication.entities.enums.Roles.CREATOR;
 
+import java.security.Permission;
+import static com.codingShuttle.SecurityApp.SecurityApplication.entities.enums.Permissions.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -42,7 +45,16 @@ public class WebSecurityConfig {
                     auth
                     .requestMatchers(publicRoutes).permitAll()
                     .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/posts/**").hasAnyRole(ADMIN.name(), CREATOR.name())
+                    .requestMatchers(HttpMethod.POST, "/posts/**")
+                    .hasAnyRole(ADMIN.name(), CREATOR.name())
+                    .requestMatchers(HttpMethod.POST, "/posts/**")
+                        .hasAnyAuthority(POST_CREATE.name())
+                    .requestMatchers(HttpMethod.GET, "/posts/**")
+                        .hasAnyAuthority(POST_VIEW.name())
+                    .requestMatchers(HttpMethod.PUT, "/posts/**")
+                        .hasAnyAuthority(POST_UPDATE.name())
+                    .requestMatchers(HttpMethod.DELETE, "/posts/**")
+                        .hasAnyAuthority(POST_DELETE.name())
                     .anyRequest().authenticated();
                     System.out.println("Authorization rules set up complete.");
                 })

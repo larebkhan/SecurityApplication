@@ -63,11 +63,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
                 System.out.println("User Roles: " + user.getRoles());
                 System.out.println("Authorities: " + authorities);
-                System.out.println("Has ROLE_ADMIN: " + authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
+                
 
                 UsernamePasswordAuthenticationToken authenticationToken = 
                     new UsernamePasswordAuthenticationToken(user, null, authorities);
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                System.out.println("Has ROLE_ADMIN: " + authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 System.out.println("Authentication token set in SecurityContext");
             }
