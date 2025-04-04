@@ -4,7 +4,6 @@ import com.codingShuttle.SecurityApp.SecurityApplication.dto.PostDTO;
 import com.codingShuttle.SecurityApp.SecurityApplication.entities.User;
 import com.codingShuttle.SecurityApp.SecurityApplication.services.PostService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,8 +26,7 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public PostDTO getPostById(@PathVariable Long postId) {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        log.info("user {}", user);
+        
         return postService.getPostById(postId);
     }
 

@@ -38,7 +38,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String email = oAuth2User.getAttribute("email");
         User user = userService.getUserByEmail(email);
         if(user == null){
-            User newUser = user.builder()
+            User newUser = User.builder()
                     .name(oAuth2User.getAttribute("name"))
                     .email(email)
                     .build();

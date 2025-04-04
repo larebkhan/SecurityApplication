@@ -4,12 +4,13 @@ import com.codingShuttle.SecurityApp.SecurityApplication.dto.LoginDto;
 import com.codingShuttle.SecurityApp.SecurityApplication.dto.LoginResponseDto;
 import com.codingShuttle.SecurityApp.SecurityApplication.dto.SignUpDto;
 import com.codingShuttle.SecurityApp.SecurityApplication.dto.UserDto;
+import com.codingShuttle.SecurityApp.SecurityApplication.entities.Session;
 import com.codingShuttle.SecurityApp.SecurityApplication.entities.User;
+import com.codingShuttle.SecurityApp.SecurityApplication.repositories.SessionRepository;
 import com.codingShuttle.SecurityApp.SecurityApplication.services.AuthService;
 import com.codingShuttle.SecurityApp.SecurityApplication.services.JwtService;
 import com.codingShuttle.SecurityApp.SecurityApplication.services.UserService;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -28,6 +30,7 @@ public class AuthController {
     private final UserService userService;
     private final AuthService authService;
     private final JwtService jwtService;
+    private final SessionRepository sessionRepository;
 
     @Value("${deploy.env}")
     private String deployEnv;
@@ -65,17 +68,43 @@ public class AuthController {
 //    }
 
     @PostMapping("/refresh")
-    public ResponseEntity<LoginResponseDto> refresh(HttpServletRequest request){
+    public ResponseEntity<LoginResponseDto> refresh(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            throw new RuntimeException("No refresh token cookie found");
+        }
 
         String refreshToken = Arrays.stream(cookies).
                 filter(cookie -> "refreshToken".equals(cookie.getName()))
                 .findFirst()
                 .map(Cookie::getValue)
-                .orElseThrow(() -> new AuthenticationServiceException("Refresh token not found inside the cookie"));
+                .orElseThrow(() -> new AuthenticationServiceException("Refresh token not found in cookies"));
 
-        LoginResponseDto loginResponseDto = authService.refreshToken(refreshToken);
-        return ResponseEntity.ok(loginResponseDto);
+        // Validate refresh token exists in session
+        Optional<Session> sessionOpt = sessionRepository.findByRefreshToken(refreshToken);
+        if (sessionOpt.isEmpty()) {
+            throw new RuntimeException("Invalid or expired refresh token");
+        }
 
+        // Validate JWT signature and get user
+        Long userId = jwtService.getUserIdFromToken(refreshToken);
+        User user = userService.getUserById(userId);
+
+        // Generate new tokens
+        String newAccessToken = jwtService.generateAccessToken(user);
+        String newRefreshToken = jwtService.generateRefreshToken(user);
+
+        // Update session with new refresh token
+        Session session = sessionOpt.get();
+        session.setRefreshToken(newRefreshToken);
+        sessionRepository.save(session);
+
+        // Set new refresh token in cookie
+        Cookie cookie = new Cookie("refreshToken", newRefreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure("production".equals(deployEnv));
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(new LoginResponseDto(user.getId(), newAccessToken, newRefreshToken));
     }
 }

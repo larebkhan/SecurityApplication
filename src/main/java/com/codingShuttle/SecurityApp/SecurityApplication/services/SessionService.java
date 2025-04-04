@@ -18,7 +18,7 @@ public class SessionService {
     private final SessionRepository sessionRepository;
     private final int SESSION_LIMIT = 2;
 
-    public void generateNeSession(User user, String refreshToken){
+    public void generateNewSession(User user, String refreshToken){
         List<Session> userSessions = sessionRepository.findByUser(user);
         if(userSessions.size() == SESSION_LIMIT){
             userSessions.sort(Comparator.comparing(Session::getLastUsedAt));
