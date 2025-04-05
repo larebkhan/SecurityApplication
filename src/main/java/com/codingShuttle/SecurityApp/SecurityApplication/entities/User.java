@@ -1,7 +1,7 @@
 package com.codingShuttle.SecurityApp.SecurityApplication.entities;
 
-import com.codingShuttle.SecurityApp.SecurityApplication.entities.enums.Permissions;
 import com.codingShuttle.SecurityApp.SecurityApplication.entities.enums.Roles;
+import com.codingShuttle.SecurityApp.SecurityApplication.entities.enums.SubscriptionPlans;
 import com.codingShuttle.SecurityApp.SecurityApplication.utils.PermissionMapping;
 
 import jakarta.persistence.*;
@@ -12,9 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -38,7 +36,13 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING) // to store roles as strings in database, otherwise they will be stored as numbers
     private Set<Roles> roles;
 
+    @Column(nullable = false, columnDefinition = "integer default 2")
+    @Builder.Default
+    private int sessionLimit = 2; // Default session limit per user
     
+    @Enumerated(EnumType.STRING) // Store plan as string
+    @Builder.Default
+    private SubscriptionPlans subscriptionPlan = SubscriptionPlans.FREE; // Ensure type is SubscriptionPlan
     
     public User(Long id, String email, String password) {
         this.id = id;

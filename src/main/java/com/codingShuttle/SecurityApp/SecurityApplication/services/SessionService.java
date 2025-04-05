@@ -16,11 +16,10 @@ import java.util.List;
 public class SessionService {
 
     private final SessionRepository sessionRepository;
-    private final int SESSION_LIMIT = 2;
 
     public void generateNewSession(User user, String refreshToken){
         List<Session> userSessions = sessionRepository.findByUser(user);
-        if(userSessions.size() == SESSION_LIMIT){
+        if(userSessions.size() >= user.getSessionLimit()){
             userSessions.sort(Comparator.comparing(Session::getLastUsedAt));
             Session leastRecentlyUsedSession = userSessions.get(0);
             sessionRepository.delete(leastRecentlyUsedSession);
@@ -40,5 +39,10 @@ public class SessionService {
         session.setLastUsedAt(LocalDateTime.now());
         sessionRepository.save(session);
 
+    }
+
+    public void deleteByUser(User user) {
+        // TODO Auto-generated method stub
+        sessionRepository.deleteAllByUser(user);
     }
 }

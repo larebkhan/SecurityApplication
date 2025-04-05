@@ -20,4 +20,6 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
     void deleteByUser(User user);
 
     List<Session> findByUser(User user);
+
+    void deleteAllByUser(User user);
 }

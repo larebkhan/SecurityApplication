@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -51,21 +52,27 @@ public class AuthController {
         return ResponseEntity.ok(loginResponseDto);
     }
 
-//    @PostMapping("/logout/")
-//    public ResponseEntity<String> logout(HttpServletRequest request) {
-//        String authHeader = request.getHeader("Authorization");
-//
-//        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-//            return ResponseEntity.badRequest().body("Missing or invalid Authorization header");
-//        }
-//
-//        String token = authHeader.split("Bearer ")[1]; // Remove "Bearer " prefix
-//        Long userId = jwtService.getUserIdFromToken(token);
-//        User user = userService.getUserById(userId);
-//
-//        authService.logout(user);
-//        return ResponseEntity.ok("User logged out successfully");
-//    }
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
+        // Get the current authenticated user
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        
+        // Delete all sessions for the user
+        authService.logout(user);
+        
+        // Clear the refresh token cookie
+        Cookie cookie = new Cookie("refreshToken", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure("production".equals(deployEnv));
+        cookie.setMaxAge(0); // Immediately expire the cookie
+        cookie.setPath("/"); // Make sure path matches the cookie's original path
+        response.addCookie(cookie);
+        
+        // Clear the security context
+        SecurityContextHolder.clearContext();
+        
+        return ResponseEntity.ok("User logged out successfully");
+    }
 
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponseDto> refresh(HttpServletRequest request, HttpServletResponse response) {

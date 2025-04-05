@@ -31,10 +31,9 @@ public class AuthService {
         return new LoginResponseDto(user.getId() ,accessToken, refreshToken);
 
     }
-
-//    public void logout(User user) {
-//        sessionService.deleteByUser(user);
-//    }
+    public void logout(User user) {
+       sessionService.deleteByUser(user);
+    }
 
     public LoginResponseDto refreshToken(String refreshToken) {
         Long userId = jwtService.getUserIdFromToken(refreshToken);
