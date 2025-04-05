@@ -3,6 +3,8 @@ package com.codingShuttle.SecurityApp.SecurityApplication.dto;
 
 import com.codingShuttle.SecurityApp.SecurityApplication.entities.enums.Permissions;
 import com.codingShuttle.SecurityApp.SecurityApplication.entities.enums.Roles;
+import com.codingShuttle.SecurityApp.SecurityApplication.entities.enums.SubscriptionPlans;
+
 import lombok.Data;
 
 import java.util.Set;
@@ -14,4 +16,5 @@ public class SignUpDto {
     private String name;
     private Set<Roles> roles;
     private Set<Permissions> permissions;
+    private SubscriptionPlans subscriptionPlan;
 }
